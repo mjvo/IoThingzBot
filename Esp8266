@@ -28,6 +28,11 @@ void esp8266_init(){
 
 }
 
+// add to setup function
+
+  esp8266_init();
+
+
 // ***** IFTTT Get **** //
 
 // add to Variables
@@ -41,17 +46,6 @@ String uri		 = "/trigger/button_pressed/with/key/d08epKsnsfcim9JKu-qFmN?value1="
 boolean msg_sent = false;
 
 // Add below esp8266_init function
-
-if (digitalRead(buttonPin) == HIGH && msg_sent==false) {
-  digitalWrite(ledPin, HIGH);
-  ifttt_send();
-}
-else {
-  digitalWrite(ledPin, LOW);
-}
-}
-
-// Add function below loop
 
 void ifttt_send(){
    // Construct our HTTP call
@@ -67,4 +61,17 @@ void ifttt_send(){
   Serial.print(httpPacket);
   msg_sent = true;
   delay(1000); // Twitter won't allow duplicate posts, ideal setting = 60000 (1 minute)
+}
+
+
+// REPLACE contents of loop function
+
+if (digitalRead(buttonPin) == HIGH && msg_sent==false) {
+
+  digitalWrite(ledPin, HIGH); 
+  ifttt_send();
+
+}
+else {
+  digitalWrite(ledPin, LOW);
 }
