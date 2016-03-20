@@ -1,0 +1,70 @@
+// **** Init ESP8266 **** //
+
+// add to variables
+
+String ssid     = "Simulator Wifi";	// SSID to connect to
+String password = ""; // Our virtual wifi has no password (so dont do your banking stuff on this network)
+
+String host     = "maker.ifttt.com"; //
+const int httpPort   = 80;
+
+
+// add below Loop function
+
+void esp8266_init(){
+
+  // Start our ESP8266 Serial Communication
+  Serial.begin(115200);		// Serial connection over USB to computer
+  Serial.println("AT");		// Serial connection on Tx / Rx port to ESP8266
+  delay(10);				// Wait a little for the ESP to respond
+
+  // Connect to 123D Circuits Simulator Wifi
+  Serial.println("AT+CWJAP=\"" + ssid + "\",\"" + password + "\"");
+  delay(10);				// Wait a little for the ESP to respond
+
+  // Open TCP connection to the host:
+  Serial.println("AT+CIPSTART=\"TCP\",\"" + host + "\"," + httpPort);
+  delay(50);				// Wait a little for the ESP to respond
+
+}
+
+// ***** IFTTT Get **** //
+
+// add to Variables
+
+String value1="John"; // = "your name"
+String value2="more Bounty paper towels"; // Buy what?
+String value3="spills persist"; // if not, what will happen?
+
+String uri		 = "/trigger/button_pressed/with/key/d08epKsnsfcim9JKu-qFmN?value1=" + value1 + "&value2=" + value2 + "&value3=" + value3;
+
+boolean msg_sent = false;
+
+// Add below esp8266_init function
+
+if (digitalRead(buttonPin) == HIGH && msg_sent==false) {
+  digitalWrite(ledPin, HIGH);
+  ifttt_send();
+}
+else {
+  digitalWrite(ledPin, LOW);
+}
+}
+
+// Add function below loop
+
+void ifttt_send(){
+   // Construct our HTTP call
+  String httpPacket = "GET " + uri + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
+  int length = httpPacket.length();
+
+  // Send our message length
+  Serial.print("AT+CIPSEND=");
+  Serial.println(length);
+  delay(10); // Wait a little for the ESP to respond
+
+  // Send our http request
+  Serial.print(httpPacket);
+  msg_sent = true;
+  delay(1000); // Twitter won't allow duplicate posts, ideal setting = 60000 (1 minute)
+}
